@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html lang='en' class=''>
-<head><meta charset='UTF-8'><meta name="robots" content="noindex"><link rel="shortcut icon" type="image/x-icon" ><link rel="mask-icon" type="" href="https://static.codepen.io/assets/favicon/logo-pin-f2d2b6d2c61838f7e76325261b7195c27224080bc099486ddd6dccb469b8e8e6.svg" color="#111" /><link rel="canonical" href="https://codepen.io/brianweaver/pen/oLzNXe" />
+<head><meta charset='UTF-8'><meta name="robots" content="noindex"><link rel="shortcut icon" type="image/x-icon" ><link rel="mask-icon" type=" color="#111" /><link rel="canonical"  />
 
 <link rel='stylesheet' href='https://cdn.jsdelivr.net/foundation/6.2.0/foundation.min.css'>
 <style class="cp-pen-styles">[ng-app] {
   overflow: hidden;
 }
-
 .list {
   height: 100vh;
   padding: 0.5rem;
@@ -20,7 +19,6 @@
   font-size: 1.7rem;
   font-weight: bold;
 }
-
 .items {
   max-height: 80vh;
   overflow-y: scroll;
@@ -43,7 +41,6 @@
 .items .item .description {
   color: #333;
 }
-
 .item-view {
   position: absolute;
   top: 50%;
@@ -57,7 +54,6 @@
   padding: 1rem;
   border-radius: 3px;
 }
-
 .item-view-overlay {
   position: absolute;
   top: 0;
@@ -68,20 +64,16 @@
   background-color: rgba(0, 0, 0, 0.5);
   cursor: pointer;
 }
-
 ul[dnd-list] {
   min-height: 30px;
 }
-
 ul[dnd-list],
 ul[dnd-list] > li {
   position: relative;
 }
-
 ul[dnd-list] .dndDraggingSource {
   display: none;
 }
-
 ul[dnd-list] .dndPlaceholder {
   display: block;
   margin-bottom: 0.5rem;
@@ -89,20 +81,16 @@ ul[dnd-list] .dndPlaceholder {
   height: 0;
   padding-bottom: 40%;
 }
-
 ::-webkit-scrollbar {
   width: 0.5em;
   height: 0.5em;
 }
-
 ::-webkit-scrollbar-thumb {
   background: #999;
 }
-
 ::-webkit-scrollbar-track {
   background: #cccccc;
 }
-
 body {
   scrollbar-face-color: #999;
   scrollbar-track-color: #cccccc;
@@ -111,7 +99,7 @@ body {
 <div ng-app="kanban">
   <div ui-view></div>
 
-  <!--  Templates  -->
+
   <script id="/templates/lists.html" type="text/ng-template">
     <div ng-repeat="list in vm.lists" class="list medium-3 columns">
       <div class="inner">
@@ -161,7 +149,7 @@ body {
 </div>
 <script src='https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.5/angular.min.js'></script><script src='https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/1.0.0-alpha.5/angular-ui-router.min.js'></script><script src='https://cdnjs.cloudflare.com/ajax/libs/angular-drag-and-drop-lists/1.4.0/angular-drag-and-drop-lists.min.js'></script>
 <script >
-  function guid() {
+  function guide() {
   function s4() {
     return Math.floor((1 + Math.random()) * 0x10000).
     toString(16).
@@ -170,7 +158,6 @@ body {
   return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
   s4() + '-' + s4() + s4() + s4();
 }
-
 angular.
 module('kanban', ['ui.router', 'dndLists']).
 config(function ($stateProvider, $urlRouterProvider) {
@@ -181,32 +168,28 @@ config(function ($stateProvider, $urlRouterProvider) {
       lists: ['ListsService', function (lists) {
         return lists.all();
       }] },
-
     url: "/lists",
     templateUrl: "/templates/lists.html",
     controller: ['lists', function (lists) {
       this.lists = lists;
     }],
     controllerAs: 'vm' }).
-
   state('lists.items-form', {
     resolve: {
       list: ['ListsService', '$stateParams', function (lists, params) {
         return lists.findList(params.listId);
       }],
       item: ['ListsService', '$stateParams', function (lists, params) {
-        var listId = params.listId,
+        let listId = params.listId,
         itemId = params.itemId,
         list = lists.findList(listId);
         if (typeof params.itemId === 'undefined') return false;
         return lists.findItem(list, itemId);
       }] },
-
     url: '/:listId/items/new',
     templateUrl: '/templates/items-form.html',
     controller: ['list', 'item', '$state', function (list, item, $state) {
       this.card = _setupCard(list, item);
-
       this.saveCard = function () {
         if (typeof this.card.title === 'undefined' || this.card.title.length < 3) {
           this.card.errors.push("Card titles must be at least 3 characters long.");
@@ -216,116 +199,92 @@ config(function ($stateProvider, $urlRouterProvider) {
         list.items.push(this.card);
         $state.go('lists');
       };
-
       function _setupCard(list, item) {
-        var card;
-
+        let card;
         if (item) {
           list.items.splice(indexOf(item), 1);
           card = item;
           card.errors = [];
         } else {
-          card = { id: guid(), errors: [] };
+          card = { id: guide(), errors: [] };
         }
-
         return card;
       }
     }],
     controllerAs: 'vm' }).
-
   state('lists.items-show', {
     resolve: {
       item: ['ListsService', '$stateParams', function (lists, params) {
-        var listId = params.listId,
+        let listId = params.listId,
         itemId = params.itemId,
         list = lists.findList(listId);
         return lists.findItem(list, itemId);
       }] },
-
     url: '/:listId/items/:itemId',
     templateUrl: '/templates/items-show.html',
     controller: ['item', function (item) {
       this.item = item;
     }],
     controllerAs: 'vm' });
-
 }).
 service('ListsService', function () {
-  var service = {},
+  let service = {},
   lists = [
   {
-    id: guid(),
+    id: guide(),
     title: 'Todo',
     items: [
     {
-      id: guid(),
-      title: 'Pizza',
+      id: guide(),
+      title: 'Bread',
       description: '' },
-
     {
-      id: guid(),
-      title: 'Tacos',
+      id: guide(),
+      title: 'Soup',
       description: '' },
-
     {
-      id: guid(),
+      id: guide(),
       title: 'BBQ',
       description: '' },
-
     {
-      id: guid(),
+      id: guide(),
       title: 'Burgers',
       description: '' }] },
-
-
-
   {
-    id: guid(),
+    id: guide(),
     title: 'Doing',
     items: [
     {
-      id: guid(),
-      title: 'Macaroni',
+      id: guide(),
+      title: 'Sallad',
       description: '' }] },
-
-
-
   {
-    id: guid(),
+    id: guide(),
     title: 'Done',
     items: [] }];
 
-    function timestamp () { // function to create a timastamp
-        let date = new Date(); // creates a new constructor, that is saved in 'date'
-        let now = date.toLocaleDateString("sv-SE"); // "todays timestamp - in Swedish staqndards", is saved in 'now'
-        return date; // returns todays timestamp, in Swedish standards.
-
+    function timestamp () {
+        let date = new Date();
+        let now = date.toLocaleDateString("sv-SE");
+        return date;
         let placeOfDate = document.querySelector("#time");
-
         placeOfDate.textContent = date;
       }
-
 
   service.all = function () {
     return lists;
   };
-
   service.findList = function (id) {
     return lists.filter(function (list) {
       return list.id === id;
     })[0];
   };
-
   service.findItem = function (list, id) {
     return list.items.filter(function (item) {
       return item.id === id;
     })[0];
   };
-
   return service;
 });
-
-
-
 </script>
 </body></html>
