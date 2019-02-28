@@ -3,7 +3,7 @@
 <head><meta charset='UTF-8'><meta name="robots" content="noindex"><link rel="shortcut icon" type="image/x-icon" ><link rel="mask-icon" type=" color="#111" /><link rel="canonical"  />
 
 <link rel='stylesheet' href='https://cdn.jsdelivr.net/foundation/6.2.0/foundation.min.css'>
-<style class="cp-pen-styles">[ng-app] {
+<style class=>[ng-app] {
   overflow: hidden;
 }
 .list {
@@ -264,11 +264,16 @@ service('ListsService', function () {
     items: [] }];
 
     function timestamp () {
-        let date = new Date();
-        let now = date.toLocaleDateString("sv-SE");
-        return date;
-        let placeOfDate = document.querySelector("#time");
-        placeOfDate.textContent = date;
+      var curDateTime = new Date();
+		var actionDateTime = curDateTime.getHours() + ":" + curDateTime.getMinutes() + ":" + curDateTime.getSeconds();
+		var actionSpan = document.createElement('div');
+		actionSpan.innerHTML = 'Moved to: ' + event.target.id + ' ' + actionDateTime;
+      //  let date = new Date();
+      //  let now = date.toLocaleDateString("sv-SE");
+      //  return date;
+      //  let placeOfDate = document.querySelector("#time");
+      //  placeOfDate.textContent = date;
+
       }
 
   service.all = function () {
