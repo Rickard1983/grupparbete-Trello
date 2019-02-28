@@ -153,7 +153,7 @@ body {
       <label for="title">Title</label>
       <input ng-model="vm.card.title" name="title" type="text" placeholder="Title" />
       <label for="description">Description</label>
-      <textarea Id="Time" ng-model="vm.card.description" name="description" cols="30" rows="5" placeholder="Description..."></textarea>
+      <textarea id="time" ng-model="vm.card.description" name="description" cols="30" rows="5" placeholder="Description..."></textarea>
       <button ng-click="vm.saveCard()" class="button primary">Save</button>
     </div>
     <div class="item-view-overlay" ui-sref="lists"></div>
@@ -300,7 +300,7 @@ service('ListsService', function () {
         let now = date.toLocaleDateString("sv-SE"); // "todays timestamp - in Swedish staqndards", is saved in 'now'
         return date; // returns todays timestamp, in Swedish standards.
 
-        let placeOfDate = document.querySelector("Time");
+        let placeOfDate = document.querySelector("#time");
 
         placeOfDate.textContent = date;
       }
