@@ -1,0 +1,331 @@
+!DOCTYPE html>
+<html lang='en' class=''>
+<head><meta charset='UTF-8'><meta name="robots" content="noindex"><link rel="shortcut icon" type="image/x-icon" ><link rel="mask-icon" type="" href="https://static.codepen.io/assets/favicon/logo-pin-f2d2b6d2c61838f7e76325261b7195c27224080bc099486ddd6dccb469b8e8e6.svg" color="#111" /><link rel="canonical" href="https://codepen.io/brianweaver/pen/oLzNXe" />
+
+<link rel='stylesheet' href='https://cdn.jsdelivr.net/foundation/6.2.0/foundation.min.css'>
+<style class="cp-pen-styles">[ng-app] {
+  overflow: hidden;
+}
+
+.list {
+  height: 100vh;
+  padding: 0.5rem;
+}
+.list .inner {
+  padding: 0 0.5rem 1rem;
+  padding-right: 0;
+  background-color: #ccc;
+}
+.list .title {
+  font-size: 1.7rem;
+  font-weight: bold;
+}
+
+.items {
+  max-height: 80vh;
+  overflow-y: scroll;
+  padding: 0 0.5rem;
+  padding-left: 0;
+}
+.items .item {
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  background-color: white;
+  border-radius: 3px;
+}
+.items .item:last-child {
+  margin-bottom: 0;
+}
+.items .item .title {
+  color: #333;
+  font-size: 1.3rem;
+}
+.items .item .description {
+  color: #333;
+}
+
+.item-view {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+  width: 40%;
+  height: 60%;
+  z-index: 1000;
+  background-color: white;
+  padding: 1rem;
+  border-radius: 3px;
+}
+
+.item-view-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 900;
+  background-color: rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+}
+
+ul[dnd-list] {
+  min-height: 30px;
+}
+
+ul[dnd-list],
+ul[dnd-list] > li {
+  position: relative;
+}
+
+ul[dnd-list] .dndDraggingSource {
+  display: none;
+}
+
+ul[dnd-list] .dndPlaceholder {
+  display: block;
+  margin-bottom: 0.5rem;
+  background-color: #ddd;
+  height: 0;
+  padding-bottom: 40%;
+}
+
+::-webkit-scrollbar {
+  width: 0.5em;
+  height: 0.5em;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #999;
+}
+
+::-webkit-scrollbar-track {
+  background: #cccccc;
+}
+
+body {
+  scrollbar-face-color: #999;
+  scrollbar-track-color: #cccccc;
+}
+</style></head><body>
+<div ng-app="kanban">
+  <div ui-view></div>
+
+  <!--  Templates  -->
+  <script id="/templates/lists.html" type="text/ng-template">
+    <div ng-repeat="list in vm.lists" class="list medium-3 columns">
+      <div class="inner">
+        <h2 class="title">{{list.title}}</h2>
+        <ul dnd-list="list.items" class="items no-bullet">
+
+          <li ng-repeat="item in list.items" dnd-draggable="item" dnd-moved="list.items.splice($index, 1)" dnd-effect-allowed="move" dnd-selected="vm.lists.selected = item" ng-class="{'selected': models.selected === item}" class="item">
+
+            <a ui-sref="lists.items-show({listId: '{{list.id}}', itemId: '{{item.id}}'})">
+              <h3 class="title">{{item.title}}</h3>
+              <p class="description">{{item.description}}</p>
+            </a>
+
+          </li>
+        </ul>
+        <a ui-sref="lists.items-form({ listId: '{{list.id}}' })">Add a Card</a>
+      </div>
+    </div>
+    <a href="#">Add a List</a>
+    <div ui-view></div>
+  </script>
+
+  <script id="/templates/items-show.html" type="text/ng-template">
+    <div class="item-view item-show">
+      <a ui-sref="lists" style="float:right">X</a>
+      <h1>{{vm.item.title}}</h1>
+      <p>{{vm.item.description}}</p>
+      <p><a ui-sref="lists.items-form({ listId: '{{list.id}}', itemId: '{{item.id}}' })">Edit</a></p>
+    </div>
+    <div class="item-view-overlay" ui-sref="lists"></div>
+  </script>
+
+  <script id="/templates/items-form.html" type="text/ng-template">
+    <div class="item-view item-new">
+      <ul ng-if="vm.card.errors.length" class="no-bullet callout alert clearfix">
+        <li ng-repeat="error in vm.card.errors">{{error}}</li>
+      </ul>
+      <a ui-sref="lists" style="float:right">X</a>
+      <label for="title">Title</label>
+      <input ng-model="vm.card.title" name="title" type="text" placeholder="Title" />
+      <label for="description">Description</label>
+      <textarea Id="Time" ng-model="vm.card.description" name="description" cols="30" rows="5" placeholder="Description..."></textarea>
+      <button ng-click="vm.saveCard()" class="button primary">Save</button>
+    </div>
+    <div class="item-view-overlay" ui-sref="lists"></div>
+  </script>
+</div>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.5/angular.min.js'></script><script src='https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/1.0.0-alpha.5/angular-ui-router.min.js'></script><script src='https://cdnjs.cloudflare.com/ajax/libs/angular-drag-and-drop-lists/1.4.0/angular-drag-and-drop-lists.min.js'></script>
+<script >
+  function guid() {
+  function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000).
+    toString(16).
+    substring(1);
+  }
+  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+  s4() + '-' + s4() + s4() + s4();
+}
+
+angular.
+module('kanban', ['ui.router', 'dndLists']).
+config(function ($stateProvider, $urlRouterProvider) {
+  $urlRouterProvider.otherwise("/lists");
+  $stateProvider.
+  state('lists', {
+    resolve: {
+      lists: ['ListsService', function (lists) {
+        return lists.all();
+      }] },
+
+    url: "/lists",
+    templateUrl: "/templates/lists.html",
+    controller: ['lists', function (lists) {
+      this.lists = lists;
+    }],
+    controllerAs: 'vm' }).
+
+  state('lists.items-form', {
+    resolve: {
+      list: ['ListsService', '$stateParams', function (lists, params) {
+        return lists.findList(params.listId);
+      }],
+      item: ['ListsService', '$stateParams', function (lists, params) {
+        var listId = params.listId,
+        itemId = params.itemId,
+        list = lists.findList(listId);
+        if (typeof params.itemId === 'undefined') return false;
+        return lists.findItem(list, itemId);
+      }] },
+
+    url: '/:listId/items/new',
+    templateUrl: '/templates/items-form.html',
+    controller: ['list', 'item', '$state', function (list, item, $state) {
+      this.card = _setupCard(list, item);
+
+      this.saveCard = function () {
+        if (typeof this.card.title === 'undefined' || this.card.title.length < 3) {
+          this.card.errors.push("Card titles must be at least 3 characters long.");
+          return false;
+        }
+        delete this.card.errors;
+        list.items.push(this.card);
+        $state.go('lists');
+      };
+
+      function _setupCard(list, item) {
+        var card;
+
+        if (item) {
+          list.items.splice(indexOf(item), 1);
+          card = item;
+          card.errors = [];
+        } else {
+          card = { id: guid(), errors: [] };
+        }
+
+        return card;
+      }
+    }],
+    controllerAs: 'vm' }).
+
+  state('lists.items-show', {
+    resolve: {
+      item: ['ListsService', '$stateParams', function (lists, params) {
+        var listId = params.listId,
+        itemId = params.itemId,
+        list = lists.findList(listId);
+        return lists.findItem(list, itemId);
+      }] },
+
+    url: '/:listId/items/:itemId',
+    templateUrl: '/templates/items-show.html',
+    controller: ['item', function (item) {
+      this.item = item;
+    }],
+    controllerAs: 'vm' });
+
+}).
+service('ListsService', function () {
+  var service = {},
+  lists = [
+  {
+    id: guid(),
+    title: 'Todo',
+    items: [
+    {
+      id: guid(),
+      title: 'Pizza',
+      description: '' },
+
+    {
+      id: guid(),
+      title: 'Tacos',
+      description: '' },
+
+    {
+      id: guid(),
+      title: 'BBQ',
+      description: '' },
+
+    {
+      id: guid(),
+      title: 'Burgers',
+      description: '' }] },
+
+
+
+  {
+    id: guid(),
+    title: 'Doing',
+    items: [
+    {
+      id: guid(),
+      title: 'Macaroni',
+      description: '' }] },
+
+
+
+  {
+    id: guid(),
+    title: 'Done',
+    items: [] }];
+
+    function timestamp () { // function to create a timastamp
+        let date = new Date(); // creates a new constructor, that is saved in 'date'
+        let now = date.toLocaleDateString("sv-SE"); // "todays timestamp - in Swedish staqndards", is saved in 'now'
+        return date; // returns todays timestamp, in Swedish standards.
+
+        let placeOfDate = document.querySelector("Time");
+
+        placeOfDate.textContent = date;
+      }
+
+
+  service.all = function () {
+    return lists;
+  };
+
+  service.findList = function (id) {
+    return lists.filter(function (list) {
+      return list.id === id;
+    })[0];
+  };
+
+  service.findItem = function (list, id) {
+    return list.items.filter(function (item) {
+      return item.id === id;
+    })[0];
+  };
+
+  return service;
+});
+
+
+
+</script>
+</body></html>
